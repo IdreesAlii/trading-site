@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import TradingChart from "./TradingChart";
+import CandleThemeSelector from "./CandleThemeSelector";
 
 const symbols = ["XAUUSD", "EURUSD", "GBPUSD"];
 
 export default function DashboardLayout() {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [theme, setTheme] = useState("dark");
+  const [candleTheme, setCandleTheme] = useState("classicDark")
   const [selectedSymbol, setSelectedSymbol] = useState(symbols[0]);
 
   const toggleTheme = () => {
@@ -83,10 +85,16 @@ export default function DashboardLayout() {
             gap: 12,
           }}
         >
-          <button onClick={() => setSelectedSymbol("XAUUSD")}>Switch to Gold</button>
-          <button onClick={toggleTheme}>
-            {theme === "dark" ? "Switch to light Mode" : "Switch to dark Mode"}
+          <button onClick={() => setSelectedSymbol("XAUUSD")}>
+            Switch to Gold
           </button>
+
+          <button onClick={toggleTheme}>
+            {theme === "dark"
+              ? "Switch to light Mode"
+              : "Switch to dark Mode"}
+          </button>
+
           <select
             value={selectedSymbol}
             onChange={(e) => setSelectedSymbol(e.target.value)}
@@ -98,17 +106,47 @@ export default function DashboardLayout() {
               </option>
             ))}
           </select>
+          <CandleThemeSelector
+            selected={candleTheme}  
+            onChange={(id) => setCandleTheme(id)} 
+          />
+
         </div>
+
+
 
         {/* Chart area with fixed height for proper chart sizing */}
         <div
           style={{
             flex: 1,
             paddingLeft: 10,
-            height: "calc(100vh - 100px)", // Fix height so chart fills space properly
+            height: "calc(100vh - 100px)",
           }}
         >
-          <TradingChart symbol={selectedSymbol} theme={theme} />
+           {activeMenu === "Dashboard" && (
+            <TradingChart symbol={selectedSymbol} theme={theme} />
+           )}
+
+           {activeMenu === "Portfolio" && (
+            <div>
+              <h2>My Portfolio</h2>
+              <ul>
+                <li>Gold - 2 lots</li>
+                <li>EUR/USD - 0.7lots</li>
+                <li>GBP/USD - 1.2 lots</li>
+              </ul>
+            </div>
+           )}
+
+
+           {activeMenu === "Settings" && (
+            <div>
+              <h2>Settings</h2>
+              <p>Theme: {theme}</p>
+              <p>Selected Symbol: {selectedSymbol}</p>
+              <p>More settings coming soon.....</p>
+            </div>
+           )}
         </div>
       </div>
     </div>
