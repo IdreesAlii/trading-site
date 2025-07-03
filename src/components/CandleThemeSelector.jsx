@@ -1,39 +1,46 @@
 import React, { useState } from "react";
 
-// 🔧 Updated colors for better contrast on white background
 const themes = [
   {
-    id: "classicDark",
-    nameLeft: "Class",
-    colorLeft: "#000", // black
-    nameRight: "ic",
-    colorRight: "#fff", // white
+    id: "blackBlue",
+    nameLeft: "Black /",
+    colorLeft: "#000000", // black
+    nameRight: "Blue",
+    colorRight: "#007bff",
   },
   {
-    id: "iceLight",
-    nameLeft: "Ice",
-    colorLeft: "#2aa6ff", // light blue
-    nameRight: "Light",
-    colorRight: "#ff9900", // orange
-  },
-  {
-    id: "matrix",
-    nameLeft: "Mat",
-    colorLeft: "#0066ff", // better blue
-    nameRight: "rix",
-    colorRight: "#ffaa00", // darker yellow for contrast
-  },
-  {
-    id: "chillGrey",
-    nameLeft: "Chill",
-    colorLeft: "#666666", // grey
+    id: "blackGrey",
+    nameLeft: "Black /",
+    colorLeft: "#000000",
     nameRight: "Grey",
-    colorRight: "#f44", // strong red
+    colorRight: "#888888",
+  },
+  {
+    id: "blackPurple",
+    nameLeft: "Black /",
+    colorLeft: "#000000",
+    nameRight: "Purple",
+    colorRight: "#800080",
+  },
+  {
+    id: "blackOrange",
+    nameLeft: "Black ",
+    colorLeft: "#000000",
+    nameRight: "Orange",
+    colorRight: "#ff6600",
+  },
+  {
+    id: "greenRed",
+    nameLeft: "Green /",
+    colorLeft: "#00b050", // Green
+    nameRight: "Red",
+    colorRight: "#ff2d2d", // Red
   },
 ];
 
 export default function CandleThemeSelector({ selected, onChange }) {
   const [open, setOpen] = useState(false);
+  const currentTheme = themes.find((t) => t.id === selected);
 
   const handleSelect = (id) => {
     onChange(id);
@@ -42,7 +49,7 @@ export default function CandleThemeSelector({ selected, onChange }) {
 
   return (
     <div style={{ position: "relative", width: 180, fontFamily: "sans-serif" }}>
-      {/* Selected item (like dropdown button) */}
+      {/* Selected item */}
       <div
         onClick={() => setOpen(!open)}
         style={{
@@ -54,17 +61,18 @@ export default function CandleThemeSelector({ selected, onChange }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          userSelect: "none",
         }}
       >
-        <span>
-          <span style={{ color: themes.find((t) => t.id === selected)?.colorLeft }}>
-            {themes.find((t) => t.id === selected)?.nameLeft}
+        {currentTheme ? (
+          <span>
+            <span style={{ color: currentTheme.colorLeft }}>{currentTheme.nameLeft}</span>
+            <span style={{ color: currentTheme.colorRight }}>{currentTheme.nameRight}</span>
           </span>
-          <span style={{ color: themes.find((t) => t.id === selected)?.colorRight }}>
-            {themes.find((t) => t.id === selected)?.nameRight}
-          </span>
-        </span>
-        <span>▼</span>
+        ) : (
+          <span style={{ color: "#000", fontWeight: "500" }}>Candle Color Theme</span>
+        )}
+        <span style={{ color: "#000" }}>▼</span>
       </div>
 
       {/* Dropdown options */}
