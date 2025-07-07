@@ -1,37 +1,41 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function TradingChart({ symbol, theme, upColor, downColor }) {
   const containerRef = useRef(null);
   const widgetRef = useRef(null);
-  const [widgetId] = useState(() => "tv_chart_" + Math.floor(Math.random() * 1000000));
 
   useEffect(() => {
-    // Remove old widget
-    if (widgetRef.current) {
+    if (!containerRef.current) return;
+
+    if (widgetRef.current && widgetRef.current.remove) {
       try {
         widgetRef.current.remove();
-      } catch {}
-      widgetRef.current = null;
+      } catch (e) {
+        console.warn("Failed to safely remove widget:", e);
+      }
     }
 
-    function createWidget() {
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/tv.js";
+    script.async = true;
+    script.onload = () => {
       if (!window.TradingView || !containerRef.current) return;
 
       widgetRef.current = new window.TradingView.widget({
-        container_id: widgetId,
         autosize: true,
-        symbol,
-        interval: "60",
-        timezone: "Etc/UTC",
-        theme: theme.toLowerCase(),
-        style: 1,
-        toolbar_bg: theme === "dark" ? "#1e1e1e" : "#f5f5f5",
-        withdateranges: true,
-        hide_side_toolbar: false,
+        symbol: symbol,
+        interval: "15",
+        container_id: containerRef.current.id,
+        theme: theme,
+        style: "1",
+        locale: "en",
+        enable_publishing: false,
         allow_symbol_change: true,
-        details: true,
+        hide_side_toolbar: false,
+        hide_top_toolbar: false,
+        withdateranges: true,
+        save_image: false,
         studies: [],
-        disabled_features: ["use_localstorage_for_settings"],
         overrides: {
           "mainSeriesProperties.candleStyle.upColor": upColor,
           "mainSeriesProperties.candleStyle.downColor": downColor,
@@ -39,34 +43,24 @@ export default function TradingChart({ symbol, theme, upColor, downColor }) {
           "mainSeriesProperties.candleStyle.borderDownColor": downColor,
           "mainSeriesProperties.candleStyle.wickUpColor": upColor,
           "mainSeriesProperties.candleStyle.wickDownColor": downColor,
-          "paneProperties.background": theme === "dark" ? "#121212" : "#ffffff",
-          "paneProperties.vertGridProperties.color": theme === "dark" ? "#2a2a2a" : "#e6e6e6",
-          "paneProperties.horzGridProperties.color": theme === "dark" ? "#2a2a2a" : "#e6e6e6",
-          "scalesProperties.textColor": theme === "dark" ? "#ccc" : "#333",
         },
-
       });
-    }
+    };
 
-    if (!window.TradingView) {
-      const script = document.createElement("script");
-      script.src = "https://s3.tradingview.com/tv.js";
-      script.async = true;
-      script.onload = createWidget;
-      document.head.appendChild(script);
-    } else {
-      createWidget();
-    }
+    document.body.appendChild(script);
 
     return () => {
-      if (widgetRef.current) {
-        try {
-          widgetRef.current.remove();
-        } catch {}
-        widgetRef.current = null;
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
       }
     };
-  }, [symbol, theme, upColor, downColor, widgetId]);
+  }, [symbol, theme, upColor, downColor]);
 
-  return <div id={widgetId} ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+  return (
+    <div
+      id="tradingview-widget-container"
+      ref={containerRef}
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
 }

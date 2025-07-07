@@ -1,16 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Landing from './pages/Landing';
-import Auth from './pages/Auth';
 import DashboardLayout from "./components/DashboardLayout";
-
+import Dashboard from "./pages/Dashboard"; // You should move this to a full page
+import Settings from "./pages/Settings";
+import Portfolio from "./pages/Portfolio";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<DashboardLayout />} />
+        <Route path="/" element={<DashboardLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="portfolio" element={<Portfolio />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

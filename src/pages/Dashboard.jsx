@@ -1,28 +1,23 @@
+import React from "react";
+import { useOutletContext } from "react-router-dom";
 import TradingChart from "../components/TradingChart";
 
-function Dashboard() {
-  return (
-    <div style={{ 
-      height: "100vh", 
-      display: "flex", 
-      flexDirection: "column", 
-      backgroundColor: "#111", 
-      margin: 0 
-    }}>
-      <header style={{ 
-        padding: "10px", 
-        color: "white", 
-        fontSize: "20px", 
-        borderBottom: "1px solid #444" 
-      }}>
-        Live Gold Chart
-      </header>
+export default function Dashboard() {
+  const {
+    symbol,
+    theme,
+    upColor,
+    downColor,
+  } = useOutletContext();
 
-      <div style={{ flex: 1, minHeight: 0 }}>
-        <TradingChart />
-      </div>
+  return (
+    <div style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column" }}>
+      <TradingChart
+        symbol={symbol}
+        theme={theme}
+        upColor={upColor}
+        downColor={downColor}
+      />
     </div>
   );
 }
-
-export default Dashboard;
