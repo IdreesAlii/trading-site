@@ -1,15 +1,16 @@
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 
-function Auth() {
-  const navigate = useNavigate();
-  return (
-    <div>
-      <h1>Welcome! Please log in or sign up,</h1>
-      <button onClick={() => navigate("/dashboard")}>Login</button>
-      <button onClick={() => alert("Signup functionality coming soon!")}>Sign Up</button>
-    </div>
-  );
-}
+const Auth = () => (
+  <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
+    <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <Link
+      to="/dashboard"
+      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+    >
+      Login
+    </Link>
+  </div>
+);
 
-
-export default Auth
+export default Auth;
