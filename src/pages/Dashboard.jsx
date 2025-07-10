@@ -1,3 +1,4 @@
+
 import React from "react";
 import TradingChart from "../components/TradingChart";
 

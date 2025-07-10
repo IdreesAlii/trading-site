@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useContext } from "react";
-import { SymbolContext, ThemeContext } from "../App";
+import React, { useEffect, useRef } from "react";
+import { useOutletContext } from "react-router-dom";
 
 const TradingChart = () => {
   const containerRef = useRef();
-  const { symbol } = useContext(SymbolContext);
-  const { theme } = useContext(ThemeContext);
+  const { selectedSymbol, theme } = useOutletContext();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -15,7 +14,7 @@ const TradingChart = () => {
       if (window.TradingView) {
         new window.TradingView.widget({
           autosize: true,
-          symbol,
+          symbol: selectedSymbol,
           interval: "60",
           timezone: "Etc/UTC",
           theme: theme === "dark" ? "dark" : "light",
@@ -30,7 +29,7 @@ const TradingChart = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, [symbol, theme]);
+  }, [selectedSymbol, theme]);
 
   return (
     <div

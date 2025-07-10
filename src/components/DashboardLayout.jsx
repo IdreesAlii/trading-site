@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import TopControlsBar from "./TopControlsBar";
 
 const DashboardLayout = () => {
+  const [selectedSymbol, setSelectedSymbol] = useState("XAUUSD");
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
@@ -52,9 +57,16 @@ const DashboardLayout = () => {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <TopControlsBar />
+        {/* ✅ Pass theme and setter to TopControlsBar */}
+        <TopControlsBar
+          theme={theme}
+          setTheme={setTheme}
+          selectedSymbol={selectedSymbol}
+          setSelectedSymbol={setSelectedSymbol}
+        />
         <div className="flex-1 overflow-hidden">
-          <Outlet />
+          {/* ✅ Pass all context to nested routes */}
+          <Outlet context={{ selectedSymbol, setSelectedSymbol, theme }} />
         </div>
       </main>
     </div>

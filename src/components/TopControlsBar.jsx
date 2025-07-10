@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import { ThemeContext, SymbolContext } from "../App";
+import React from "react";
 import { Sun, Moon, ChevronDown } from "lucide-react";
 import { Listbox } from "@headlessui/react";
 
@@ -9,12 +8,10 @@ const symbols = [
   { label: "Pound/USD (GBPUSD)", value: "GBPUSD" },
 ];
 
-const TopControlsBar = () => {
-  const { theme, setTheme } = useContext(ThemeContext);
-  const { symbol, setSymbol } = useContext(SymbolContext);
-
+const TopControlsBar = ({ theme, setTheme, selectedSymbol, setSelectedSymbol }) => {
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
+    localStorage.setItem("theme", theme === "light" ? "dark" : "light");
   };
 
   return (
@@ -23,16 +20,14 @@ const TopControlsBar = () => {
 
       <div className="flex items-center space-x-4">
         {/* SYMBOL DROPDOWN */}
-        <Listbox value={symbol} onChange={setSymbol}>
+        <Listbox value={selectedSymbol} onChange={setSelectedSymbol}>
           <div className="relative group">
             <Listbox.Button className="flex items-center justify-between px-3 py-2 w-52 bg-gray-200 dark:bg-gray-700 rounded text-sm text-gray-900 dark:text-white shadow">
-              {symbols.find((s) => s.value === symbol)?.label || symbol}
+              {symbols.find((s) => s.value === selectedSymbol)?.label || selectedSymbol}
               <ChevronDown className="w-4 h-4 ml-2" />
             </Listbox.Button>
 
-            <Listbox.Options
-              className="absolute mt-1 w-52 origin-top-right bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow-lg z-10 transition ease-out duration-100 transform opacity-0 scale-95 group-data-[headlessui-state=open]:opacity-100 group-data-[headlessui-state=open]:scale-100"
-            >
+            <Listbox.Options className="absolute mt-1 w-52 origin-top-right bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow-lg z-10">
               {symbols.map(({ label, value }) => (
                 <Listbox.Option
                   key={value}

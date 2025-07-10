@@ -1,25 +1,28 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
-  darkMode: "class",
   theme: {
     extend: {
+      animation: {
+        fadeIn: "fadeIn 0.5s ease-in-out forwards",
+        slideInLeft: "slideInLeft 0.5s ease-out forwards",
+        slideInRight: "slideInRight 0.5s ease-out forwards",
+      },
       keyframes: {
+        fadeIn: {
+          "0%": { opacity: 0, transform: "translateY(10px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
         slideInLeft: {
-          '0%': { transform: 'translateX(-100%)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
+          "0%": { opacity: 0, transform: "translateX(-100%)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
         },
         slideInRight: {
-          '0%': { transform: 'translateX(100%)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
+          "0%": { opacity: 0, transform: "translateX(100%)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
         },
-      },
-      animation: {
-        slideInLeft: 'slideInLeft 0.6s ease forwards',
-        slideInRight: 'slideInRight 0.6s ease forwards',
       },
     },
   },
