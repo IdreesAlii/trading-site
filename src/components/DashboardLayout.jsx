@@ -1,71 +1,98 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import TopControlsBar from "./TopControlsBar";
+import { ThemeContext, SymbolContext } from "../App";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu } from "lucide-react";
 
 const DashboardLayout = () => {
-  const [selectedSymbol, setSelectedSymbol] = useState("XAUUSD");
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
+  const { theme, setTheme } = useContext(ThemeContext);
+  const { symbol: selectedSymbol, setSymbol: setSelectedSymbol } = useContext(SymbolContext);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-52 bg-white dark:bg-gray-800 border-r dark:border-gray-700 p-4 space-y-4">
-        <h2 className="text-xl font-bold">TradingSite</h2>
-        <nav className="flex flex-col space-y-2">
-          <NavLink
-            to="/dashboard"
-            end
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md font-medium ${
-                isActive
-                  ? "bg-blue-500 text-white"
-                  : "hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`
-            }
+      <AnimatePresence>
+        {(sidebarOpen || window.innerWidth >= 640) && (
+          <motion.aside
+            key="sidebar"
+            initial={{ x: -220, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -220, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed sm:static z-20 w-52 h-full bg-white dark:bg-gray-800 border-r dark:border-gray-700 p-4 space-y-4"
           >
-            Dashboard
-          </NavLink>
+            <h2 className="text-xl font-bold">TradingSite</h2>
+            <nav className="flex flex-col space-y-2">
+              <NavLink
+                to="/dashboard"
+                end
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-md font-medium ${
+                    isActive
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                Dashboard
+              </NavLink>
 
-          <NavLink
-            to="/dashboard/settings"
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md font-medium ${
-                isActive
-                  ? "bg-blue-500 text-white"
-                  : "hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`
-            }
-          >
-            Settings
-          </NavLink>
-          <NavLink
-            to="/dashboard/portfolio"
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md font-medium ${
-                isActive
-                  ? "bg-blue-500 text-white"
-                  : "hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`
-            }
-          >
-            Portfolio
-          </NavLink>
-        </nav>
-      </aside>
+              <NavLink
+                to="/dashboard/settings"
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-md font-medium ${
+                    isActive
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                Settings
+              </NavLink>
 
-      {/* Main content */}
+              <NavLink
+                to="/dashboard/portfolio"
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-md font-medium ${
+                    isActive
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                Portfolio
+              </NavLink>
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* ✅ Pass theme and setter to TopControlsBar */}
+        {/* Hamburger on mobile */}
+        <div className="sm:hidden p-2">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-gray-800 dark:text-gray-100"
+          >
+            <Menu size={28} />
+          </button>
+        </div>
+
         <TopControlsBar
           theme={theme}
           setTheme={setTheme}
           selectedSymbol={selectedSymbol}
           setSelectedSymbol={setSelectedSymbol}
         />
+
         <div className="flex-1 overflow-hidden">
-          {/* ✅ Pass all context to nested routes */}
           <Outlet context={{ selectedSymbol, setSelectedSymbol, theme }} />
         </div>
       </main>

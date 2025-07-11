@@ -1,59 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const Auth = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignup, setIsSignup] = useState(false);
-  const [showForm, setShowForm] = useState(false); // animation trigger
-
+  const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Trigger entrance animation and redirect if already logged in
+  // Redirect if already logged in
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser) {
-      navigate("/dashboard");
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate("/dashboard");
+      }
+    });
 
-    const timeout = setTimeout(() => {
-      setShowForm(true);
-    }, 100);
+    const timer = setTimeout(() => setShowForm(true), 100);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (isSignup) {
-      const userExists = users.some((user) => user.username === username);
-      if (userExists) {
-        alert("Username already taken");
-        return;
-      }
-
-      const newUser = { username, password };
-      users.push(newUser);
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
-      localStorage.setItem("isLoggedIn", "true");
-
-      alert("Account created! Redirecting to dashboard...");
-      navigate("/dashboard");
-    } else {
-      const validUser = users.find(
-        (user) => user.username === username && user.password === password
-      );
-      if (validUser) {
-        localStorage.setItem("currentUser", JSON.stringify(validUser));
-        localStorage.setItem("isLoggedIn", "true");
-        alert("Logged in successfully!");
-        navigate("/dashboard");
+    try {
+      if (isSignup) {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Account created! Redirecting...");
       } else {
-        alert("Invalid username or password");
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Logged in!");
       }
+
+      navigate("/dashboard");
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -72,7 +63,6 @@ const Auth = () => {
         <button
           onClick={() => setIsSignup(!isSignup)}
           className="text-blue-500 ml-1 underline"
-          type="button"
         >
           {isSignup ? "Login" : "Sign Up"}
         </button>
@@ -80,15 +70,16 @@ const Auth = () => {
 
       {showForm && (
         <form
-          onSubmit={handleLogin}
-          className="bg-white dark:bg-gray-800 p-6 rounded shadow space-y-4 w-80 transition-all duration-500 animate-fade-in"
+          onSubmit={handleSubmit}
+          className="bg-white dark:bg-gray-800 p-6 rounded shadow space-y-4 w-80 transition-all duration-500"
         >
           <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-3 py-2 border rounded bg-white text-black dark:bg-gray-700 dark:text-white"
+            required
           />
 
           <input
@@ -97,6 +88,7 @@ const Auth = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 border rounded bg-white text-black dark:bg-gray-700 dark:text-white"
+            required
           />
 
           <button
