@@ -1,13 +1,13 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-// children = the component you want to show (e.g. Dashboard)
-// This wrapper checks if currentUser exists
+// Wrapper to protect routes like Dashboard, Settings, etc.
 const ProtectedRoute = ({ children }) => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-  if (!currentUser) {
-    // if no logged-in user, redirect to login
+  // Redirect to /auth if not logged in or no user found
+  if (!currentUser || isLoggedIn !== "true") {
     return <Navigate to="/auth" replace />;
   }
 
