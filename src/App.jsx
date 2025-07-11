@@ -6,6 +6,8 @@ import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Portfolio from "./pages/Portfolio";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 export const ThemeContext = React.createContext();
 export const SymbolContext = React.createContext();
@@ -29,7 +31,15 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+
             <Route index element={<Dashboard />} />
             <Route path="settings" element={<Settings />} />
             <Route path="portfolio" element={<Portfolio />} />

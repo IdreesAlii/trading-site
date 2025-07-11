@@ -15,3 +15,8 @@ body,
 #root {
   height: 100%;
 }
+
+.Navbar {
+  background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
