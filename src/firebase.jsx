@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getFirestore } from "firebase/firestore"; // make sure this is here
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfjSeeImKenjna2LuYdii7aW1P0b9EuKg",
@@ -12,4 +13,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const auth = getAuth(app);
+
+// ✅ This line makes user logout when they close or refresh the tab
+setPersistence(auth, browserSessionPersistence);
+
+export const db = getFirestore(app);
+export { auth };

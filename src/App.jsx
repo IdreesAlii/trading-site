@@ -6,6 +6,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Portfolio from "./pages/Portfolio";
+import OnlineUsers from "./pages/OnlineUsers";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Contexts
@@ -16,28 +17,23 @@ export const IntervalContext = React.createContext(); // ✅ TF context
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
-  // ✅ Use defaultSymbol if set, otherwise fallback
   const [symbol, setSymbol] = useState(() =>
     localStorage.getItem("defaultSymbol") || localStorage.getItem("symbol") || "XAUUSD"
   );
 
-  // ✅ Use defaultInterval if set
   const [interval, setInterval] = useState(() =>
     localStorage.getItem("defaultInterval") || "60"
   );
 
-  // Theme sync
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Symbol sync
   useEffect(() => {
     localStorage.setItem("symbol", symbol);
   }, [symbol]);
 
-  // Interval sync
   useEffect(() => {
     localStorage.setItem("defaultInterval", interval);
   }, [interval]);
@@ -49,6 +45,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+
             <Route
               path="/dashboard"
               element={
@@ -61,6 +58,16 @@ export default function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="portfolio" element={<Portfolio />} />
             </Route>
+
+            {/* ✅ CORRECT: Standalone protected route for /online */}
+            <Route
+              path="/online"
+              element={
+                <ProtectedRoute>
+                  <OnlineUsers />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </IntervalContext.Provider>
       </SymbolContext.Provider>

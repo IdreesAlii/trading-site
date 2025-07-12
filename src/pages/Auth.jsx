@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; // ✅ New import
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +15,6 @@ const Auth = () => {
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -35,11 +35,29 @@ const Auth = () => {
 
     try {
       if (isSignup) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // ✅ Save the user's email to Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          email: user.email,
+          createdAt: new Date(),
+          lastActive: new Date(),
+        });
+
         alert("Account created! Redirecting...");
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Logged in!");
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // ✅ Update lastActive in Firestore
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            lastActive: new Date(),
+          }, { merge: true }); // merge keeps other fields like createdAt
+
+          alert("Logged in!");
+
       }
 
       navigate("/dashboard");
