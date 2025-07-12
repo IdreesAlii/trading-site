@@ -8,6 +8,8 @@ import Settings from "./pages/Settings";
 import Portfolio from "./pages/Portfolio";
 import OnlineUsers from "./pages/OnlineUsers";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Profile from "./pages/Profile"; // 👈 Add this
+
 
 // Contexts
 export const ThemeContext = React.createContext();
@@ -57,6 +59,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="settings" element={<Settings />} />
               <Route path="portfolio" element={<Portfolio />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* ✅ CORRECT: Standalone protected route for /online */}

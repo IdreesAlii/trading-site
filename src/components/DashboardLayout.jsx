@@ -1,15 +1,34 @@
-import React, { useContext, useState } from "react";
-import { Outlet, NavLink } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import TopControlsBar from "./TopControlsBar";
 import { ThemeContext, SymbolContext } from "../App";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu } from "lucide-react";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const DashboardLayout = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const { symbol: selectedSymbol, setSymbol: setSelectedSymbol } = useContext(SymbolContext);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [photoURL, setPhotoURL] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setPhotoURL(data.photoURL || "");
+        }
+      }
+    };
+
+    fetchPhoto();
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
@@ -91,6 +110,16 @@ const DashboardLayout = () => {
           selectedSymbol={selectedSymbol}
           setSelectedSymbol={setSelectedSymbol}
         />
+
+        {/* Profile Picture Top Right */}
+        <div className="absolute top-3 right-3">
+          <img
+            src={photoURL || "/default-avatar.png"} // fallback image
+            alt="Profile"
+            className="w-10 h-10 rounded-full border-2 border-blue-500 cursor-pointer"
+            onClick={() => navigate("/dashboard/profile")}
+          />
+        </div>
 
         <div className="flex-1 overflow-hidden">
           <Outlet context={{ selectedSymbol, setSelectedSymbol, theme }} />

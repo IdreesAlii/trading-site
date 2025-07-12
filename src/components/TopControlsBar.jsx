@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { ThemeContext, SymbolContext } from "../App";
 import { Sun, Moon, ChevronDown } from "lucide-react";
 import { Listbox } from "@headlessui/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const symbols = [
   { label: "Gold (XAUUSD)", value: "XAUUSD" },
@@ -9,94 +12,69 @@ const symbols = [
   { label: "Pound/USD (GBPUSD)", value: "GBPUSD" },
 ];
 
-const TopControlsBar = ({ theme, setTheme, selectedSymbol, setSelectedSymbol }) => {
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-  };
+const TopControlsBar = () => {
+  const { theme, setTheme } = useContext(ThemeContext);
+  const { symbol, setSymbol } = useContext(SymbolContext);
+  const navigate = useNavigate();
+  const [photoURL, setPhotoURL] = useState("");
 
-  const handleSymbolChange = (newSymbol) => {
-    setSelectedSymbol(newSymbol);
-    localStorage.setItem("symbol", newSymbol);
-  };
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setPhotoURL(data.photoURL || "");
+        }
+      }
+    };
+
+    fetchPhoto();
+  }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-4 py-2 bg-white dark:bg-gray-800 border-b dark:border-gray-700"
-    >
-      <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
-        Trading Dashboard
-      </h1>
+    <div className="flex justify-between items-center px-4 py-2 border-b dark:border-gray-700 bg-white dark:bg-gray-800">
+      {/* Symbol Selector */}
+      <Listbox value={symbol} onChange={setSymbol}>
+        <div className="relative w-48">
+          <Listbox.Button className="w-full py-2 px-3 bg-gray-100 dark:bg-gray-700 text-black dark:text-white rounded flex justify-between items-center">
+            {symbols.find((s) => s.value === symbol)?.label || symbol}
+            <ChevronDown className="w-4 h-4 ml-2" />
+          </Listbox.Button>
+          <Listbox.Options className="absolute mt-1 w-full bg-white dark:bg-gray-800 rounded shadow z-50">
+            {symbols.map((s) => (
+              <Listbox.Option
+                key={s.value}
+                value={s.value}
+                className="cursor-pointer px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-700"
+              >
+                {s.label}
+              </Listbox.Option>
+            ))}
+          </Listbox.Options>
+        </div>
+      </Listbox>
 
-      <div className="flex flex-wrap items-center gap-4">
-        {/* SYMBOL DROPDOWN */}
-        <Listbox value={selectedSymbol} onChange={handleSymbolChange}>
-          {({ open }) => (
-            <div className="relative group w-full sm:w-52">
-              <Listbox.Button className="flex items-center justify-between w-full px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded text-sm text-gray-900 dark:text-white shadow">
-                {symbols.find((s) => s.value === selectedSymbol)?.label || selectedSymbol}
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </Listbox.Button>
-
-              <AnimatePresence>
-                {open && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Listbox.Options className="absolute mt-1 w-full sm:w-52 origin-top-right bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow-lg z-10">
-                      {symbols.map(({ label, value }) => (
-                        <Listbox.Option
-                          key={value}
-                          value={value}
-                          className={({ active }) =>
-                            `cursor-pointer select-none px-4 py-2 text-sm ${
-                              active
-                                ? "bg-blue-500 text-white"
-                                : "text-gray-900 dark:text-gray-200"
-                            }`
-                          }
-                        >
-                          {label}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-        </Listbox>
-
-        {/* THEME TOGGLE */}
+      {/* Right side controls */}
+      <div className="flex items-center space-x-4">
+        {/* Theme Toggle */}
         <button
-          onClick={toggleTheme}
-          className="relative w-14 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center transition duration-300 focus:outline-none"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:scale-105 transition"
         >
-          <motion.span
-            layout
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className={`absolute left-1 top-1 w-6 h-6 rounded-full flex items-center justify-center text-yellow-500 dark:text-gray-300 bg-white shadow ${
-              theme === "dark" ? "translate-x-6" : "translate-x-0"
-            }`}
-            style={{
-              boxShadow:
-                theme === "dark"
-                  ? "0 0 10px rgba(255,255,255,0.4)"
-                  : "0 0 10px rgba(255, 230, 0, 0.5)",
-            }}
-          >
-            {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
-          </motion.span>
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
+
+        {/* Profile Picture */}
+        <img
+          src={photoURL || "/default-avatar.png"}
+          alt="Profile"
+          onClick={() => navigate("/dashboard/profile")}
+          className="w-9 h-9 rounded-full border-2 border-blue-500 cursor-pointer hover:scale-105 transition"
+        />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
